@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aws_usage_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATA_SOURCE=mock
+      - HOST=0.0.0.0
+      - PORT=8000
+      - ENVIRONMENT=production
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost:80
+      - AWS_REGION=us-east-1
+      - ATHENA_DATABASE=aws_usage_db
+      - ATHENA_TABLE=aws_usage_reports
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aws_usage_frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: unless-stopped
